@@ -1,0 +1,19 @@
+# Виртуальные окружения и кэши
+venv/
+venv_df/
+__pycache__/
+*.pyc
+build/
+dist/
+ov_cache/
+ov_models/
+
+# Модели (слишком большие для GitHub)
+vosk-model-small-ru-0.22/
+
+# Логи и временные файлы
+audio_cleaner.log
+*.egg-info/
+.vscode/
+.idea/
+Thumbs.db

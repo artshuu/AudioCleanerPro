@@ -1,0 +1,9 @@
+customtkinter>=5.2.0
+soundfile>=0.12.1
+noisereduce>=3.0.0
+vosk>=0.3.45
+silero-vad>=5.1
+scipy>=1.11.0
+numpy>=1.24.0
+torch>=2.1.0
+torchaudio>=2.1.0
