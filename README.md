@@ -55,4 +55,5 @@ iscc AudioCleanerProInstaller.iss
 
 После этого в папке с проектом появится `AudioCleanerPro_Setup.exe`.
 
-> Примечание: `build_release.bat` автоматически копирует в `dist\AudioCleanerPro` директорию `vosk-model-small-ru-0.22`, поэтому установщик соберёт полный релиз со всем требуемым содержимым.
+> Примечание: `build_release.bat` пытается копировать в `dist\AudioCleanerPro` директорию `vosk-model-small-ru-0.22`. Если у вас в репозитории нет этой папки, загрузите модель отдельно и поместите её рядом с `AudioCleanerPro.exe` перед запуском установщика.
+

@@ -27,8 +27,13 @@ if not exist dist\AudioCleanerPro (
 )
 
 copy /y "words.txt" "dist\AudioCleanerPro\" >nul
-if exist dist\AudioCleanerPro\vosk-model-small-ru-0.22 rd /s /q dist\AudioCleanerPro\vosk-model-small-ru-0.22
-xcopy "vosk-model-small-ru-0.22" "dist\AudioCleanerPro\vosk-model-small-ru-0.22" /e /i /y >nul
+if exist "vosk-model-small-ru-0.22" (
+    if exist dist\AudioCleanerPro\vosk-model-small-ru-0.22 rd /s /q dist\AudioCleanerPro\vosk-model-small-ru-0.22
+    xcopy "vosk-model-small-ru-0.22" "dist\AudioCleanerPro\vosk-model-small-ru-0.22" /e /i /y >nul
+) else (
+    echo [WARNING] Model folder "vosk-model-small-ru-0.22" не найдена в корне проекта.
+    echo Поместите папку модели рядом с EXE после сборки, чтобы приложение работало.
+)
 
 echo.
 echo Build complete.
