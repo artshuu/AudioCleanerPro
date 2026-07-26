@@ -1,8 +1,0 @@
-{
-  "theme": "system",
-  "auto_save": true,
-  "censor_mode": "beep",
-  "noise_reduction": 0.5,
-  "censor_chunk_size": 8000,
-  "padding_ms": 1
-}

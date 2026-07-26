@@ -3,24 +3,41 @@ from tkinter import filedialog, messagebox
 import threading
 import os
 import time
-import json
 from processor import AudioProcessor
+from config_utils import APP_VERSION, load_settings, save_settings
+
+GLASS_ACCENT = "#5b7cff"
+GLASS_ACCENT_HOVER = "#4b6bf8"
+GLASS_DANGER = "#ef5d70"
+GLASS_SURFACE_LIGHT = "#ffffff"
+GLASS_SURFACE_DARK = "#1d2433"
+GLASS_BORDER_LIGHT = "#dce5ff"
+GLASS_BORDER_DARK = "#40506e"
 
 
 class ColorLogTextBox(ctk.CTkTextbox):
     TAG_COLORS = {
-        "✅": "#2ecc71", "💾": "#2ecc71", "🎉": "#2ecc71",
-        "⚠": "#f39c12", "ℹ": "#95a5a6",
-        "❌": "#e74c3c", "⛔": "#e74c3c", "💥": "#e74c3c",
-        "🐱": "#9b59b6", "📟": "#9b59b6",
-        "📍": "#3498db", "📂": "#3498db", "🔇": "#3498db",
-        "🔧": "#3498db", "🔍": "#3498db", "🎛": "#3498db",
-        "⏱": "#f39c12",
+        "✅ ": "#2ecc71", "💾 ": "#2ecc71", "🎉 ": "#2ecc71",
+        "⚠ ": "#f39c12", "ℹ ": "#95a5a6",
+        "❌ ": "#e74c3c", "⛔ ": "#e74c3c", "💥 ": "#e74c3c",
+        "🐱 ": "#9b59b6", "📟 ": "#9b59b6",
+        "📍 ": "#3498db", "📂 ": "#3498db", "🔇 ": "#3498db",
+        "🔧 ": "#3498db", "🔍 ": "#3498db", "🎛 ": "#3498db",
+        "⏱ ": "#f39c12", "🚫 ": "#e74c3c",
     }
 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.configure(state="disabled", font=("Consolas", 12))
+        self.configure(
+            state="disabled",
+            font=("Consolas", 12),
+            corner_radius=18,
+            fg_color=(GLASS_SURFACE_LIGHT, GLASS_SURFACE_DARK),
+            border_color=(GLASS_BORDER_LIGHT, GLASS_BORDER_DARK),
+            border_width=1,
+            text_color=("#243143", "#f8fafc"),
+        )
+        self._textbox.configure(padx=8, pady=6)
         for prefix, color in self.TAG_COLORS.items():
             self._textbox.tag_config(prefix, foreground=color)
 
@@ -46,133 +63,27 @@ class ColorLogTextBox(ctk.CTkTextbox):
         return text
 
 
-HELP_TEXT = """📖 СПРАВКА ПО AUDIO CLEANER PRO
-
-═══════════════════════════════════════
-📂 ЗАГРУЗКА И СОХРАНЕНИЕ
-═══════════════════════════════════════
-📂 Загрузить WAV файл
-  Открывает диалог выбора WAV-файла для обработки.
-  Поддерживаются файлы любой длительности и частоты
-  дискретизации (8000–48000 Гц). Стерео автоматически
-  конвертируется в моно.
-
-💾 Сохранять рядом с оригиналом
-  Если включено — обработанный файл сохраняется
-  автоматически в ту же папку с суффиксом _cleaned.
-  Диалог сохранения не появляется.
-  Если выключено — каждый раз запрашивается путь
-  через диалог «Сохранить как».
-
-═══════════════════════════════════════
-⚙ НАСТРОЙКИ ОБРАБОТКИ
-═══════════════════════════════════════
-Режим (beep / meow)
-  beep — заменяет мат на тональный сигнал 1000 Гц.
-  meow — заменяет мат на синтезированный звук мяуканья
-         с нисходящей частотой 800→400 Гц.
-
-Шумодав (0.0 – 1.0)
-  Сила шумоподавления. Определяет, насколько агрессивно
-  удаляется фоновый шум.
-  • 0.0–0.3  Мягкое: минимальное воздействие на голос,
-             подходит для чистых студийных записей.
-  • 0.3–0.6  Нормальное: баланс между чистотой и
-             сохранением тембра. Рекомендуется по умолчанию.
-  • 0.6–1.0  Агрессивное: сильное подавление шума,
-             может слегка «роботизировать» голос.
-             Используйте для записей с сильным фоном.
-
-Чанк (размер блока цензуры)
-  Размер порции аудио (в байтах), которая подаётся
-  в модель распознавания за один раз.
-  • 8000  — стандартное значение, оптимально для
-            small-ru-0.22. Не меняйте без причины.
-  • Меньше → точнее сегментация, но медленнее.
-  • Больше → быстрее, но модель может пропускать
-             короткие слова или выдавать неточные таймкоды.
-
-Паддинг (мс)
-  Отступ в миллисекундах, добавляемый к началу и концу
-  каждого найденного мата перед заменой звуком.
-  • 100 мс — стандарт: бип/мяу начинается чуть раньше
-             и заканчивается чуть позже слова.
-  • Увеличьте, если начало/конец мата не полностью
-    перекрывается звуком цензуры.
-  • Уменьшите, если цензура захватывает слишком много
-    соседней речи.
-
-═══════════════════════════════════════
-🔘 КНОПКИ УПРАВЛЕНИЯ
-═══════════════════════════════════════
-⚙ Обработать
-  Запускает полный цикл: предобработка → шумоподавление
-  → восстановление динамики → удаление тишины (VAD)
-  → поиск и цензура мата по словарю words.txt.
-
-📄 SRT
-  Экспортирует маркеры найденного мата в файл .srt
-  отдельно от аудио. Доступна только после успешной
-  обработки, если был найден хотя бы один мат.
-  Файл можно открыть в Audacity, Premiere, DaVinci
-  для ручной проверки и правки.
-
-⛔ Отмена
-  Прерывает текущую обработку. Активна только во время
-  выполнения задачи.
-
-📋 Копировать
-  Копирует всё содержимое журнала в буфер обмена.
-
-═══════════════════════════════════════
-📊 СТАТУС-БАР И ЖУРНАЛ
-═══════════════════════════════════════
-Статус-бар (верхняя серая полоса)
-  Слева: имя загруженного файла.
-  Справа: прогресс в процентах и время работы в
-          формате ММ:СС. Во время обработки обновляется
-          каждые 500 мс в реальном времени.
-
-Журнал обработки
-  Цветной лог всех этапов. Цвета:
-  🟢 Зелёный  — успешные операции
-  🟡 Жёлтый   — предупреждения и тайминги
-  🔴 Красный  — ошибки и прерывания
-  🟣 Фиолетовый — найденные слова мата
-  🔵 Синий    — информационные сообщения
-
-Итоговая статистика (после обработки)
-  • Найдено мата — количество слов и список уникальных.
-  • Убрано тишины — объём удалённой тишины (VAD).
-  • Время обработки — общее затраченное время.
-
-═══════════════════════════════════════
-🎨 ТЕМА ОФОРМЛЕНИЯ
-═══════════════════════════════════════
-light / dark / system
-  Переключает визуальную тему приложения.
-  Выбор сохраняется между запусками.
-
-═══════════════════════════════════════
-📁 ФАЙЛЫ ПРОЕКТА
-═══════════════════════════════════════
-words.txt           Словарь мата (одно слово на строку).
-                    Редактируйте вручную для настройки
-                    строгости цензуры.
-vosk-model-small-ru-0.22/  Модель распознавания речи.
-audio_cleaner.log   Технический журнал (ротация 5 МБ × 3).
-audio_cleaner_settings.json  Сохранённые настройки UI.
-"""
-
-
 class AudioCleanerApp(ctk.CTk):
     SETTINGS_FILE = "audio_cleaner_settings.json"
 
+    def _make_glass_frame(self, master, **kwargs):
+        kwargs.setdefault("corner_radius", 22)
+        kwargs.setdefault("border_width", 1)
+        kwargs.setdefault("border_color", (GLASS_BORDER_LIGHT, GLASS_BORDER_DARK))
+        kwargs.setdefault("fg_color", (GLASS_SURFACE_LIGHT, GLASS_SURFACE_DARK))
+        return ctk.CTkFrame(master, **kwargs)
+
     def __init__(self):
         super().__init__()
-        self.title("Audio Cleaner Pro v3.5")
-        self.geometry("750x800")
-        self.minsize(550, 500)
+        self.title(f"Audio Cleaner Pro v{APP_VERSION}")
+        self.geometry("750x850")
+        self.minsize(550, 550)
+        self.configure(fg_color=("#f5f7ff", "#0f172a"))
+        if os.name == "nt":
+            try:
+                self.attributes("-alpha", 0.97)
+            except Exception:
+                pass
 
         self.input_file = None
         self.processor = AudioProcessor()
@@ -180,37 +91,34 @@ class AudioCleanerApp(ctk.CTk):
         self.is_processing = False
         self.start_time = None
 
-        # Поток таймера
         self._timer_thread = None
         self._timer_stop_event = threading.Event()
 
-        self.settings = self._load_settings()
+        self.settings = load_settings(self.SETTINGS_FILE)
 
         # === ВЕРХНЯЯ ПАНЕЛЬ ===
-        top_frame = ctk.CTkFrame(self, fg_color="transparent")
-        top_frame.pack(fill="x", padx=20, pady=(15, 5))
-        ctk.CTkLabel(top_frame, text="🎙 Очистка аудио от шума и мата",
-                     font=ctk.CTkFont(size=20, weight="bold")).pack(side="left")
+        top_frame = self._make_glass_frame(self)
+        top_frame.pack(fill="x", padx=20, pady=(15, 8))
+        top_frame.configure(height=78)
+        top_frame.pack_propagate(False)
 
-        right_top = ctk.CTkFrame(top_frame, fg_color="transparent")
-        right_top.pack(side="right")
+        ctk.CTkLabel(
+            top_frame,
+            text="🎙 Audio Cleaner Pro",
+            font=ctk.CTkFont(size=20, weight="bold"),
+            anchor="w"
+        ).pack(side="left", padx=16, pady=12)
 
-        self.btn_help = ctk.CTkButton(
-            right_top, text="❓", width=32, height=28,
-            font=ctk.CTkFont(size=14), command=self._show_help
-        )
-        self.btn_help.pack(side="left", padx=(0, 8))
+        ctk.CTkLabel(
+            top_frame,
+            text="Быстрая очистка аудио без лишних шагов",
+            font=ctk.CTkFont(size=11),
+            text_color=("#5f6b7a", "#9fb1c7")
+        ).pack(side="right", padx=16, pady=12)
+        ctk.set_appearance_mode(self.settings.get("theme", "system"))
 
-        self.theme_var = ctk.StringVar(value=self.settings.get("theme", "system"))
-        ctk.CTkSegmentedButton(
-            right_top, values=["light", "dark", "system"], variable=self.theme_var,
-            command=lambda v: [ctk.set_appearance_mode(v), self._save_settings()],
-            font=ctk.CTkFont(size=11), width=180, height=28
-        ).pack(side="left")
-        ctk.set_appearance_mode(self.theme_var.get())
-
-        # === ЕДИНЫЙ СТАТУС-БАР ===
-        status_bar = ctk.CTkFrame(self, fg_color=("gray85", "gray20"), corner_radius=8, height=36)
+        # === СТАТУС-БАР ===
+        status_bar = self._make_glass_frame(self, height=44)
         status_bar.pack(fill="x", padx=20, pady=5)
         status_bar.pack_propagate(False)
 
@@ -223,29 +131,59 @@ class AudioCleanerApp(ctk.CTk):
         self.progress_timer_label.pack(side="right", padx=10)
 
         # === КНОПКА ЗАГРУЗКИ ===
-        self.btn_load = ctk.CTkButton(self, text="📂 Загрузить WAV файл", command=self.load_file, height=45)
+        self.btn_load = ctk.CTkButton(
+            self, text="📂 Загрузить WAV файл", command=self.load_file, height=48,
+            corner_radius=18, fg_color=(GLASS_ACCENT, GLASS_ACCENT),
+            hover_color=(GLASS_ACCENT_HOVER, GLASS_ACCENT_HOVER),
+            border_width=1, border_color=(GLASS_BORDER_LIGHT, GLASS_BORDER_DARK)
+        )
         self.btn_load.pack(pady=5, padx=20, fill="x")
 
-        # === АВТОСОХРАНЕНИЕ ===
-        auto_frame = ctk.CTkFrame(self, fg_color="transparent")
-        auto_frame.pack(fill="x", padx=20, pady=2)
+        # === ОСНОВНЫЕ ОПЦИИ ===
+        options_frame = self._make_glass_frame(self)
+        options_frame.pack(fill="x", padx=20, pady=2)
+        options_frame.pack_propagate(False)
+
         self.auto_save_var = ctk.BooleanVar(value=self.settings.get("auto_save", False))
-        ctk.CTkCheckBox(auto_frame, text="💾 Сохранять рядом с оригиналом", variable=self.auto_save_var, font=ctk.CTkFont(size=12)).pack(side="left")
+        ctk.CTkCheckBox(options_frame, text="💾 Сохранять рядом",
+                        variable=self.auto_save_var, font=ctk.CTkFont(size=12)).pack(side="left", padx=12, pady=8)
+
+        self.disable_censor_var = ctk.BooleanVar(value=self.settings.get("disable_censor", False))
+        self.chk_disable_censor = ctk.CTkCheckBox(
+            options_frame, text="🚫 Без цензуры",
+            variable=self.disable_censor_var, font=ctk.CTkFont(size=12),
+            command=self._on_censor_toggle
+        )
+        self.chk_disable_censor.pack(side="right", padx=12, pady=8)
+
+        self.preset_var = ctk.StringVar(value=self.settings.get("processing_preset", "balanced"))
+        ctk.CTkLabel(options_frame, text="⚙ Пресет:", font=ctk.CTkFont(size=12)).pack(side="left", padx=(12, 6), pady=8)
+        ctk.CTkOptionMenu(
+            options_frame,
+            values=["fast", "balanced", "quality"],
+            variable=self.preset_var,
+            command=lambda *_: self._save_settings(),
+            width=110,
+            height=28,
+        ).pack(side="left", pady=8)
 
         # === ПРОГРЕСС-БАР ===
-        self.progress = ctk.CTkProgressBar(self)
+        self.progress = ctk.CTkProgressBar(self, height=10, corner_radius=999, progress_color=(GLASS_ACCENT, "#7dd3fc"))
         self.progress.pack(fill="x", padx=20, pady=5)
         self.progress.set(0)
 
         # === НАСТРОЙКИ ===
-        settings_frame = ctk.CTkFrame(self, fg_color="transparent")
+        settings_frame = self._make_glass_frame(self)
         settings_frame.pack(fill="x", padx=20, pady=5)
 
         mode_row = ctk.CTkFrame(settings_frame, fg_color="transparent")
         mode_row.pack(fill="x", pady=2)
         ctk.CTkLabel(mode_row, text="Режим:", font=ctk.CTkFont(size=12)).pack(side="left")
         self.censor_mode_var = ctk.StringVar(value=self.settings.get("censor_mode", "meow"))
-        self.mode_switch = ctk.CTkSegmentedButton(mode_row, values=["beep", "meow"], variable=self.censor_mode_var, font=ctk.CTkFont(size=12), width=160, height=28)
+        self.mode_switch = ctk.CTkSegmentedButton(
+            mode_row, values=["beep", "meow"], variable=self.censor_mode_var,
+            font=ctk.CTkFont(size=12), width=160, height=28
+        )
         self.mode_switch.pack(side="left", padx=(10, 0))
 
         nr_row = ctk.CTkFrame(settings_frame, fg_color="transparent")
@@ -253,7 +191,8 @@ class AudioCleanerApp(ctk.CTk):
         ctk.CTkLabel(nr_row, text="Шумодав:", font=ctk.CTkFont(size=12)).pack(side="left")
         self.nr_value_label = ctk.CTkLabel(nr_row, text="0.50", width=35, anchor="e", font=ctk.CTkFont(size=12))
         self.nr_value_label.pack(side="right")
-        self.nr_slider = ctk.CTkSlider(nr_row, from_=0.0, to=1.0, number_of_steps=20, command=lambda v: self.nr_value_label.configure(text=f"{v:.2f}"), height=16)
+        self.nr_slider = ctk.CTkSlider(nr_row, from_=0.0, to=1.0, number_of_steps=20,
+                                        command=lambda v: self.nr_value_label.configure(text=f"{v:.2f}"), height=16)
         self.nr_slider.set(self.settings.get("noise_reduction", 0.5))
         self.nr_slider.pack(side="right", padx=(10, 5), fill="x", expand=True)
 
@@ -269,20 +208,36 @@ class AudioCleanerApp(ctk.CTk):
         self.pad_entry.pack(side="left", padx=(10, 0))
 
         # === КНОПКИ ===
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame = self._make_glass_frame(self)
         btn_frame.pack(fill="x", padx=20, pady=5)
-        self.btn_save = ctk.CTkButton(btn_frame, text="⚙ Обработать", command=self.save_processed, height=40, state="disabled")
+        self.btn_save = ctk.CTkButton(
+            btn_frame, text="⚙ Обработать", command=self.save_processed,
+            height=42, state="disabled", corner_radius=16,
+            fg_color=(GLASS_ACCENT, GLASS_ACCENT), hover_color=(GLASS_ACCENT_HOVER, GLASS_ACCENT_HOVER),
+            border_width=1, border_color=(GLASS_BORDER_LIGHT, GLASS_BORDER_DARK)
+        )
         self.btn_save.pack(side="left", expand=True, fill="x", padx=(0, 5))
-        self.btn_export_srt = ctk.CTkButton(btn_frame, text="📄 SRT", command=self.export_srt_standalone, height=40, width=80, state="disabled", fg_color="#3498db")
+        self.btn_export_srt = ctk.CTkButton(
+            btn_frame, text="📄 SRT", command=self.export_srt_standalone,
+            height=42, width=88, state="disabled", fg_color=("#3b82f6", "#2563eb"),
+            hover_color=("#2563eb", "#3b82f6"), corner_radius=16,
+            border_width=1, border_color=(GLASS_BORDER_LIGHT, GLASS_BORDER_DARK)
+        )
         self.btn_export_srt.pack(side="right", padx=(5, 0))
-        self.btn_cancel = ctk.CTkButton(btn_frame, text="⛔ Отмена", command=self.cancel_processing, height=40, width=100, fg_color="#d9534f", state="disabled")
+        self.btn_cancel = ctk.CTkButton(
+            btn_frame, text="⛔ Отмена", command=self.cancel_processing,
+            height=42, width=100, fg_color=(GLASS_DANGER, GLASS_DANGER), state="disabled",
+            hover_color=("#dc4f61", "#f15b74"), corner_radius=16,
+            border_width=1, border_color=(GLASS_BORDER_LIGHT, GLASS_BORDER_DARK)
+        )
         self.btn_cancel.pack(side="right")
 
         # === ЛОГ ===
-        log_header = ctk.CTkFrame(self, fg_color="transparent")
+        log_header = self._make_glass_frame(self)
         log_header.pack(fill="x", padx=20, pady=(10, 2))
         ctk.CTkLabel(log_header, text="Журнал:", anchor="w", font=ctk.CTkFont(size=13)).pack(side="left")
-        self.btn_copy_log = ctk.CTkButton(log_header, text="📋 Копировать", command=self.copy_log, height=28, width=110, font=ctk.CTkFont(size=12))
+        self.btn_copy_log = ctk.CTkButton(log_header, text="📋 Копировать", command=self.copy_log,
+                                           height=28, width=110, font=ctk.CTkFont(size=12))
         self.btn_copy_log.pack(side="right")
 
         self.log_box = ColorLogTextBox(self, height=200)
@@ -293,30 +248,11 @@ class AudioCleanerApp(ctk.CTk):
         if self.processor.vad_warning:
             self._log(self.processor.vad_warning)
 
-    # === СПРАВКА ===
-    def _show_help(self):
-        win = ctk.CTkToplevel(self)
-        win.title("Справка")
-        win.geometry("620x700")
-        win.resizable(True, True)
-        win.transient(self)
-        win.grab_set()
-
-        help_box = ctk.CTkTextbox(win, font=("Consolas", 12), wrap="word")
-        help_box.pack(fill="both", expand=True, padx=10, pady=10)
-        help_box.insert("1.0", HELP_TEXT)
-        help_box.configure(state="disabled")
-
-        ctk.CTkButton(win, text="Закрыть", command=win.destroy, height=36, width=120).pack(pady=(0, 10))
+        # Применяем начальное состояние чекбокса цензуры
+        self._on_censor_toggle()
+        self._save_settings()
 
     # === НАСТРОЙКИ ===
-    def _load_settings(self) -> dict:
-        try:
-            with open(self.SETTINGS_FILE, 'r') as f:
-                return json.load(f)
-        except Exception:
-            return {}
-
     def _save_settings(self):
         try:
             chunk_sz = int(self.chunk_entry.get())
@@ -327,20 +263,31 @@ class AudioCleanerApp(ctk.CTk):
         except ValueError:
             pad_ms = 100
         data = {
-            "theme": self.theme_var.get(),
+            "theme": self.settings.get("theme", "system"),
             "auto_save": self.auto_save_var.get(),
             "censor_mode": self.censor_mode_var.get(),
             "noise_reduction": round(self.nr_slider.get(), 2),
             "censor_chunk_size": chunk_sz,
             "padding_ms": pad_ms,
+            "disable_censor": self.disable_censor_var.get(),
+            "processing_preset": self.preset_var.get(),
         }
-        try:
-            with open(self.SETTINGS_FILE, 'w') as f:
-                json.dump(data, f, indent=2)
-        except Exception:
-            pass
+        save_settings(data, self.SETTINGS_FILE)
 
-    # === ТАЙМЕР (независимый поток, не подвисает) ===
+    # === УПРАВЛЕНИЕ СОСТОЯНИЕМ ЦЕНЗУРЫ ===
+    def _on_censor_toggle(self):
+        disabled = self.disable_censor_var.get()
+        state = "disabled" if disabled else "normal"
+        self.mode_switch.configure(state=state)
+        self._save_settings()
+
+    def _get_effective_censor_mode(self) -> str:
+        """Возвращает 'off' если цензура отключена, иначе выбранный режим."""
+        if self.disable_censor_var.get():
+            return "off"
+        return self.censor_mode_var.get()
+
+    # === ТАЙМЕР ===
     def _format_mm_ss(self, seconds: float) -> str:
         m, s = divmod(int(seconds), 60)
         return f"{m:02d}:{s:02d}"
@@ -399,7 +346,7 @@ class AudioCleanerApp(ctk.CTk):
         self.progress.set(0)
         self.progress_timer_label.configure(text="")
         self.log_box.clear()
-        self._log(f"Файл загружен: {os.path.basename(path)}")
+        self._log(f"📂 Файл загружен: {os.path.basename(path)}")
 
     def load_file(self):
         if self.is_processing:
@@ -434,7 +381,8 @@ class AudioCleanerApp(ctk.CTk):
     def _start_processing(self, output_path: str):
         self.is_processing = True
         self.cancel_event.clear()
-        for w in [self.mode_switch, self.btn_load, self.btn_save, self.btn_export_srt, self.nr_slider, self.chunk_entry, self.pad_entry]:
+        for w in [self.mode_switch, self.btn_load, self.btn_save, self.btn_export_srt,
+                   self.nr_slider, self.chunk_entry, self.pad_entry, self.chk_disable_censor]:
             w.configure(state="disabled")
         self.btn_cancel.configure(state="normal")
         self.log_box.clear()
@@ -442,14 +390,17 @@ class AudioCleanerApp(ctk.CTk):
         self._start_timer()
         self._save_settings()
 
+        effective_mode = self._get_effective_censor_mode()
+
         def worker():
             ok, msg, stats = self.processor.process(
-                self.input_file, output_path, censor_mode=self.censor_mode_var.get(),
+                self.input_file, output_path, censor_mode=effective_mode,
                 noise_reduction=round(self.nr_slider.get(), 2),
                 censor_chunk_size=int(self.chunk_entry.get() or 8000),
                 padding_ms=int(self.pad_entry.get() or 100),
                 progress_cb=lambda v: self.after(0, lambda: self._update_progress(v)),
-                log_cb=self._log, cancel_event=self.cancel_event
+                log_cb=self._log, cancel_event=self.cancel_event,
+                processing_preset=self.preset_var.get(),
             )
             self.after(0, lambda: self._on_complete(ok, msg, stats))
 
@@ -457,10 +408,13 @@ class AudioCleanerApp(ctk.CTk):
 
     def _on_complete(self, success: bool, message: str, stats: dict):
         self.is_processing = False
-        for w in [self.mode_switch, self.btn_load, self.btn_save, self.nr_slider, self.chunk_entry, self.pad_entry]:
+        for w in [self.mode_switch, self.btn_load, self.btn_save, self.nr_slider,
+                   self.chunk_entry, self.pad_entry, self.chk_disable_censor]:
             w.configure(state="normal")
         self.btn_cancel.configure(state="disabled")
         self._stop_timer(success=success)
+        # Восстанавливаем состояние переключателя режима
+        self._on_censor_toggle()
 
         if success:
             pc = stats.get('profanity_count', 0)
@@ -478,7 +432,10 @@ class AudioCleanerApp(ctk.CTk):
 
             self._log("")
             self._log("📊 Итог:")
-            self._log(f"   • Найдено мата: {pc} слов ({', '.join(uw)})" if uw else "   • Мат не найден")
+            if uw:
+                self._log(f"   • Найдено мата: {pc} слов ({', '.join(uw)})")
+            else:
+                self._log("   • Мат не найден")
             self._log(f"   • Убрано тишины: {mt_str}")
             self._log(f"   • Время обработки: {st_str}")
             self._log(f"\n🎉 {message}")
