@@ -22,16 +22,24 @@
 
 ## 🚀 Установка
 
-### 1. Создание виртуального окружения
+### 1. Подготовка окружения
 
 ```powershell
 cd C:\Projects\AudioCleanerPro
 py -3.12 -m venv venv
 .\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### 2. Запуск
+
+```powershell
+python app.py
+```
 
 ## 🧩 Сборка релизной версии
 
-### 1. Сборка EXE
+### Сборка EXE
 
 После установки зависимостей выполните:
 
@@ -42,9 +50,9 @@ cd C:\Projects\AudioCleanerPro
 
 Сборка создаст папку `dist\AudioCleanerPro` и поместит туда `AudioCleanerPro.exe` вместе с нужными ресурсами.
 
-### 2. Сборка установщика
+### Сборка установщика
 
-Чтобы получить инсталлятор, нужно установить Inno Setup и открыть файл `AudioCleanerProInstaller.iss` в Inno Setup Compiler. Затем запустите сборку.
+Чтобы получить инсталлятор, установите Inno Setup и откройте файл `AudioCleanerProInstaller.iss` в Inno Setup Compiler. Затем запустите сборку.
 
 Если Inno Setup уже установлен, можно собрать установщик командой:
 
@@ -53,7 +61,7 @@ cd C:\Projects\AudioCleanerPro
 iscc AudioCleanerProInstaller.iss
 ```
 
-После этого в папке с проектом появится `AudioCleanerPro_Setup.exe`.
+После этого в папке проекта появится `AudioCleanerPro_Setup.exe`.
 
 > Примечание: `build_release.bat` пытается копировать в `dist\AudioCleanerPro` директорию `vosk-model-small-ru-0.22`. Если у вас в репозитории нет этой папки, загрузите модель отдельно и поместите её рядом с `AudioCleanerPro.exe` перед запуском установщика.
 

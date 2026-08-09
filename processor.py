@@ -460,21 +460,6 @@ class AudioProcessor:
         self._log(f"✅ Заменено на тишину: {_format_duration(muted_sec)} (длительность сохранена)", log_cb)
         return result, muted_sec
 
-        if last_end < len(result):
-            tail_len = len(result) - last_end
-            safe_fade = min(fade_samples, tail_len)
-
-            if safe_fade > 0:
-                result[last_end:last_end + safe_fade] *= np.linspace(1, 0, safe_fade, dtype=np.float32)
-            if tail_len > safe_fade:
-                result[last_end + safe_fade:] = 0
-
-            muted += tail_len
-
-        muted_sec = muted / sr
-        self._log(f"✅ Заменено на тишину: {_format_duration(muted_sec)} (длительность сохранена)", log_cb)
-        return result, muted_sec
-
     def _generate_meow(self, duration, sr):
         t = np.linspace(0, duration / sr, duration, endpoint=False)
         freq = 800.0 - 400.0 * (t / (duration / sr))
@@ -532,7 +517,10 @@ class AudioProcessor:
         self._log(f"{mi} Цензура ({ml}, чанк={chunk_size}, паддинг={padding_ms}мс)... ", log_cb)
         self._check_cancel(cancel_event)
 
-        if self.vosk_model is not None and speech_segments:
+        if self.vosk_model is not None:
+            if not speech_segments:
+                self._log("ℹ Нет сегментов речи — распознавание выполняется по всему файлу", log_cb)
+                speech_segments = [(0, len(data))]
             target_sr = 16000
             all_words = []
             for s, e in speech_segments:
