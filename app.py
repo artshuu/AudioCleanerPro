@@ -1,10 +1,31 @@
-import customtkinter as ctk
-from tkinter import filedialog, messagebox
-import threading
 import os
+import queue
+import threading
 import time
-from processor import AudioProcessor
-from config_utils import APP_VERSION, load_settings, save_settings
+
+try:
+    import customtkinter as ctk
+    from tkinter import filedialog, messagebox
+    from processor import AudioProcessor, resolve_processing_config
+    from config_utils import APP_VERSION, load_settings, save_settings
+except Exception as exc:
+    try:
+        import tkinter as _tk
+        from tkinter import messagebox as _messagebox
+
+        _root = _tk.Tk()
+        _root.withdraw()
+        _messagebox.showerror(
+            "Audio Cleaner Pro",
+            "Не удалось загрузить компоненты приложения:\n"
+            f"{exc}\n\n"
+            "Запустите install.bat из папки программы "
+            "(или установите зависимости: pip install -r requirements.txt).",
+        )
+        _root.destroy()
+    except Exception:
+        pass
+    raise SystemExit(1)
 
 GLASS_ACCENT = "#5b7cff"
 GLASS_ACCENT_HOVER = "#4b6bf8"
@@ -64,7 +85,6 @@ class ColorLogTextBox(ctk.CTkTextbox):
 
 
 class AudioCleanerApp(ctk.CTk):
-    SETTINGS_FILE = "audio_cleaner_settings.json"
 
     def _make_glass_frame(self, master, **kwargs):
         kwargs.setdefault("corner_radius", 22)
@@ -91,10 +111,14 @@ class AudioCleanerApp(ctk.CTk):
         self.is_processing = False
         self.start_time = None
 
-        self._timer_thread = None
-        self._timer_stop_event = threading.Event()
+        self._timer_job = None
+        self._timer_active = False
+        self._current_progress = 0.0
 
-        self.settings = load_settings(self.SETTINGS_FILE)
+        self.settings = load_settings()
+        ctk.set_appearance_mode(self.settings.get("theme", "system"))
+
+        self._ui_queue = queue.Queue()
 
         # === ВЕРХНЯЯ ПАНЕЛЬ ===
         top_frame = self._make_glass_frame(self)
@@ -115,7 +139,6 @@ class AudioCleanerApp(ctk.CTk):
             font=ctk.CTkFont(size=11),
             text_color=("#5f6b7a", "#9fb1c7")
         ).pack(side="right", padx=16, pady=12)
-        ctk.set_appearance_mode(self.settings.get("theme", "system"))
 
         # === СТАТУС-БАР ===
         status_bar = self._make_glass_frame(self, height=44)
@@ -142,13 +165,14 @@ class AudioCleanerApp(ctk.CTk):
         # === ОСНОВНЫЕ ОПЦИИ ===
         options_frame = self._make_glass_frame(self)
         options_frame.pack(fill="x", padx=20, pady=2)
-        options_frame.pack_propagate(False)
 
         self.auto_save_var = ctk.BooleanVar(value=self.settings.get("auto_save", False))
         ctk.CTkCheckBox(options_frame, text="💾 Сохранять рядом",
                         variable=self.auto_save_var, font=ctk.CTkFont(size=12)).pack(side="left", padx=12, pady=8)
 
-        self.disable_censor_var = ctk.BooleanVar(value=self.settings.get("disable_censor", False))
+        self.disable_censor_var = ctk.BooleanVar(
+            value=bool(self.settings.get("disable_censor", False) or self.settings.get("censor_mode") == "off")
+        )
         self.chk_disable_censor = ctk.CTkCheckBox(
             options_frame, text="🚫 Без цензуры",
             variable=self.disable_censor_var, font=ctk.CTkFont(size=12),
@@ -158,14 +182,19 @@ class AudioCleanerApp(ctk.CTk):
 
         self.preset_var = ctk.StringVar(value=self.settings.get("processing_preset", "balanced"))
         ctk.CTkLabel(options_frame, text="⚙ Пресет:", font=ctk.CTkFont(size=12)).pack(side="left", padx=(12, 6), pady=8)
-        ctk.CTkOptionMenu(
+        self.preset_menu = ctk.CTkOptionMenu(
             options_frame,
             values=["fast", "balanced", "quality"],
             variable=self.preset_var,
-            command=lambda *_: self._save_settings(),
+            command=lambda *_: self._on_preset_change(),
             width=110,
             height=28,
-        ).pack(side="left", pady=8)
+        )
+        self.preset_menu.pack(side="left", pady=8)
+        self.preset_hint = ctk.CTkLabel(
+            options_frame, text="", font=ctk.CTkFont(size=11), text_color=("#5f6b7a", "#9fb1c7")
+        )
+        self.preset_hint.pack(side="left", padx=(8, 0), pady=8)
 
         # === ПРОГРЕСС-БАР ===
         self.progress = ctk.CTkProgressBar(self, height=10, corner_radius=999, progress_color=(GLASS_ACCENT, "#7dd3fc"))
@@ -179,7 +208,9 @@ class AudioCleanerApp(ctk.CTk):
         mode_row = ctk.CTkFrame(settings_frame, fg_color="transparent")
         mode_row.pack(fill="x", pady=2)
         ctk.CTkLabel(mode_row, text="Режим:", font=ctk.CTkFont(size=12)).pack(side="left")
-        self.censor_mode_var = ctk.StringVar(value=self.settings.get("censor_mode", "meow"))
+        self.censor_mode_var = ctk.StringVar(
+            value=self.settings.get("censor_mode") if self.settings.get("censor_mode") in {"beep", "meow"} else "beep"
+        )
         self.mode_switch = ctk.CTkSegmentedButton(
             mode_row, values=["beep", "meow"], variable=self.censor_mode_var,
             font=ctk.CTkFont(size=12), width=160, height=28
@@ -192,20 +223,19 @@ class AudioCleanerApp(ctk.CTk):
         self.nr_value_label = ctk.CTkLabel(nr_row, text="0.50", width=35, anchor="e", font=ctk.CTkFont(size=12))
         self.nr_value_label.pack(side="right")
         self.nr_slider = ctk.CTkSlider(nr_row, from_=0.0, to=1.0, number_of_steps=20,
-                                        command=lambda v: self.nr_value_label.configure(text=f"{v:.2f}"), height=16)
+                                        command=self._on_noise_change, height=16)
         self.nr_slider.set(self.settings.get("noise_reduction", 0.5))
+        self.nr_value_label.configure(text=f"{self.nr_slider.get():.2f}")
         self.nr_slider.pack(side="right", padx=(10, 5), fill="x", expand=True)
 
         thresh_row = ctk.CTkFrame(settings_frame, fg_color="transparent")
         thresh_row.pack(fill="x", pady=2)
-        ctk.CTkLabel(thresh_row, text="Чанк:", font=ctk.CTkFont(size=12)).pack(side="left")
-        self.chunk_entry = ctk.CTkEntry(thresh_row, width=70, height=26, font=ctk.CTkFont(size=12))
-        self.chunk_entry.insert(0, str(self.settings.get("censor_chunk_size", 8000)))
-        self.chunk_entry.pack(side="left", padx=(10, 0))
-        ctk.CTkLabel(thresh_row, text="Паддинг (мс):", font=ctk.CTkFont(size=12)).pack(side="left", padx=(15, 0))
+        ctk.CTkLabel(thresh_row, text="Паддинг (мс):", font=ctk.CTkFont(size=12)).pack(side="left")
         self.pad_entry = ctk.CTkEntry(thresh_row, width=60, height=26, font=ctk.CTkFont(size=12))
         self.pad_entry.insert(0, str(self.settings.get("padding_ms", 100)))
         self.pad_entry.pack(side="left", padx=(10, 0))
+        self.pad_entry.bind("<KeyRelease>", lambda _event: self._update_preset_hint())
+        self.pad_entry.bind("<FocusOut>", lambda _event: self._save_settings())
 
         # === КНОПКИ ===
         btn_frame = self._make_glass_frame(self)
@@ -247,32 +277,52 @@ class AudioCleanerApp(ctk.CTk):
             self._log(self.processor.dict_warning)
         if self.processor.vad_warning:
             self._log(self.processor.vad_warning)
+        if getattr(self.processor, "vosk_warning", None):
+            self._log(self.processor.vosk_warning)
 
         # Применяем начальное состояние чекбокса цензуры
         self._on_censor_toggle()
+        self._update_preset_hint()
         self._save_settings()
+        self.after(50, self._drain_ui_queue)
 
     # === НАСТРОЙКИ ===
+    def _pad_value(self) -> int:
+        try:
+            return max(0, int(self.pad_entry.get()))
+        except (TypeError, ValueError):
+            return 100
+
+    def _on_noise_change(self, value):
+        self.nr_value_label.configure(text=f"{value:.2f}")
+        self._update_preset_hint()
+        self._save_settings()
+
+    def _on_preset_change(self):
+        self._update_preset_hint()
+        self._save_settings()
+
+    def _update_preset_hint(self):
+        try:
+            config = resolve_processing_config(
+                self.preset_var.get(), self.nr_slider.get(), self._pad_value()
+            )
+        except (TypeError, ValueError):
+            self.preset_hint.configure(text="")
+            return
+        self.preset_hint.configure(text=f"факт. шумодав: {config['noise_reduction']:.2f}")
+
     def _save_settings(self):
-        try:
-            chunk_sz = int(self.chunk_entry.get())
-        except ValueError:
-            chunk_sz = 8000
-        try:
-            pad_ms = int(self.pad_entry.get())
-        except ValueError:
-            pad_ms = 100
         data = {
             "theme": self.settings.get("theme", "system"),
             "auto_save": self.auto_save_var.get(),
-            "censor_mode": self.censor_mode_var.get(),
+            "censor_mode": self._get_effective_censor_mode(),
             "noise_reduction": round(self.nr_slider.get(), 2),
-            "censor_chunk_size": chunk_sz,
-            "padding_ms": pad_ms,
+            "padding_ms": self._pad_value(),
             "disable_censor": self.disable_censor_var.get(),
             "processing_preset": self.preset_var.get(),
         }
-        save_settings(data, self.SETTINGS_FILE)
+        save_settings(data)
 
     # === УПРАВЛЕНИЕ СОСТОЯНИЕМ ЦЕНЗУРЫ ===
     def _on_censor_toggle(self):
@@ -294,28 +344,36 @@ class AudioCleanerApp(ctk.CTk):
 
     def _start_timer(self):
         self.start_time = time.time()
-        self._timer_stop_event.clear()
+        self._timer_active = True
+        self._current_progress = 0.0
         self.progress_timer_label.configure(text="0% | 00:00")
+        self._tick_timer()
 
-        def _timer_worker():
-            while not self._timer_stop_event.is_set():
-                elapsed = time.time() - self.start_time
-                pct = int(self.progress.get() * 100)
-                text = f"{pct}% | {self._format_mm_ss(elapsed)}"
-                self.after(0, lambda t=text: self.progress_timer_label.configure(text=t))
-                self._timer_stop_event.wait(0.5)
-
-        self._timer_thread = threading.Thread(target=_timer_worker, daemon=True)
-        self._timer_thread.start()
+    def _tick_timer(self):
+        if not self._timer_active or self.start_time is None:
+            return
+        elapsed = time.time() - self.start_time
+        pct = int(self._current_progress * 100)
+        self.progress_timer_label.configure(text=f"{pct}% | {self._format_mm_ss(elapsed)}")
+        self._timer_job = self.after(500, self._tick_timer)
 
     def _update_progress(self, value: float):
-        self.progress.set(value)
+        self._current_progress = max(0.0, min(1.0, float(value)))
+        self.progress.set(self._current_progress)
+        if self.start_time is not None:
+            elapsed = time.time() - self.start_time
+            self.progress_timer_label.configure(
+                text=f"{int(self._current_progress * 100)}% | {self._format_mm_ss(elapsed)}"
+            )
 
     def _stop_timer(self, success=True):
-        self._timer_stop_event.set()
-        if self._timer_thread and self._timer_thread.is_alive():
-            self._timer_thread.join(timeout=2)
-        self._timer_thread = None
+        self._timer_active = False
+        if self._timer_job is not None:
+            try:
+                self.after_cancel(self._timer_job)
+            except Exception:
+                pass
+            self._timer_job = None
 
         if self.start_time:
             elapsed = time.time() - self.start_time
@@ -323,11 +381,31 @@ class AudioCleanerApp(ctk.CTk):
             self.progress_timer_label.configure(text=f"{icon} {self._format_mm_ss(elapsed)}")
         self.start_time = None
 
-    # === ЛОГ ===
+    # === UI-ОЧЕРЕДЬ И ЛОГ ===
+    def _post(self, func, *args):
+        """Безопасно передаёт действие из рабочего потока в главный."""
+        self._ui_queue.put((func, args))
+
+    def _flush_ui_queue(self):
+        try:
+            while True:
+                func, args = self._ui_queue.get_nowait()
+                try:
+                    func(*args)
+                except Exception:
+                    pass
+        except queue.Empty:
+            pass
+
+    def _drain_ui_queue(self):
+        self._flush_ui_queue()
+        self.after(50, self._drain_ui_queue)
+
     def _log(self, message: str):
-        self.after(0, lambda: self.log_box.append(message))
+        self._post(self.log_box.append, message)
 
     def copy_log(self):
+        self._flush_ui_queue()
         text = self.log_box.get_all_text()
         if text:
             self.clipboard_clear()
@@ -341,6 +419,8 @@ class AudioCleanerApp(ctk.CTk):
         if self.is_processing:
             return
         self.input_file = path
+        self.processor.last_entries = []
+        self.btn_export_srt.configure(state="disabled")
         self.status_label.configure(text=f"✅ {os.path.basename(path)}", text_color="green")
         self.btn_save.configure(state="normal")
         self.progress.set(0)
@@ -366,9 +446,10 @@ class AudioCleanerApp(ctk.CTk):
     def save_processed(self):
         if not self.input_file or self.is_processing:
             return
+        input_abs = os.path.abspath(self.input_file)
         if self.auto_save_var.get():
-            base, ext = os.path.splitext(self.input_file)
-            output_path = f"{base}_cleaned{ext}"
+            base, _ = os.path.splitext(self.input_file)
+            output_path = f"{base}_cleaned.wav"
         else:
             output_path = filedialog.asksaveasfilename(
                 title="Сохранить", defaultextension=".wav", filetypes=[("WAV files", "*.wav")],
@@ -376,45 +457,57 @@ class AudioCleanerApp(ctk.CTk):
             )
             if not output_path:
                 return
+            if not output_path.lower().endswith(".wav"):
+                output_path += ".wav"
+
+        if os.path.normcase(os.path.abspath(output_path)) == os.path.normcase(input_abs):
+            messagebox.showerror("Ошибка", "Нельзя перезаписать исходный файл — выберите другое имя.")
+            return
+
         self._start_processing(output_path)
 
     def _start_processing(self, output_path: str):
         self.is_processing = True
         self.cancel_event.clear()
         for w in [self.mode_switch, self.btn_load, self.btn_save, self.btn_export_srt,
-                   self.nr_slider, self.chunk_entry, self.pad_entry, self.chk_disable_censor]:
+                   self.nr_slider, self.pad_entry, self.chk_disable_censor, self.preset_menu]:
             w.configure(state="disabled")
         self.btn_cancel.configure(state="normal")
         self.log_box.clear()
         self.progress.set(0)
+        self._current_progress = 0.0
         self._start_timer()
         self._save_settings()
 
         effective_mode = self._get_effective_censor_mode()
+        padding_ms = self._pad_value()
+        noise_reduction = round(self.nr_slider.get(), 2)
+        preset = self.preset_var.get()
 
         def worker():
             ok, msg, stats = self.processor.process(
                 self.input_file, output_path, censor_mode=effective_mode,
-                noise_reduction=round(self.nr_slider.get(), 2),
-                censor_chunk_size=int(self.chunk_entry.get() or 8000),
-                padding_ms=int(self.pad_entry.get() or 100),
-                progress_cb=lambda v: self.after(0, lambda: self._update_progress(v)),
+                noise_reduction=noise_reduction,
+                padding_ms=padding_ms,
+                progress_cb=lambda v: self._post(self._update_progress, v),
                 log_cb=self._log, cancel_event=self.cancel_event,
-                processing_preset=self.preset_var.get(),
+                processing_preset=preset,
             )
-            self.after(0, lambda: self._on_complete(ok, msg, stats))
+            self._post(self._on_complete, ok, msg, stats)
 
         threading.Thread(target=worker, daemon=True).start()
 
     def _on_complete(self, success: bool, message: str, stats: dict):
         self.is_processing = False
         for w in [self.mode_switch, self.btn_load, self.btn_save, self.nr_slider,
-                   self.chunk_entry, self.pad_entry, self.chk_disable_censor]:
+                   self.pad_entry, self.chk_disable_censor, self.preset_menu]:
             w.configure(state="normal")
         self.btn_cancel.configure(state="disabled")
         self._stop_timer(success=success)
         # Восстанавливаем состояние переключателя режима
         self._on_censor_toggle()
+
+        cancelled = (not success) and (self.cancel_event.is_set() or "прервана" in message.lower())
 
         if success:
             pc = stats.get('profanity_count', 0)
@@ -436,12 +529,12 @@ class AudioCleanerApp(ctk.CTk):
                 self._log(f"   • Найдено мата: {pc} слов ({', '.join(uw)})")
             else:
                 self._log("   • Мат не найден")
-            self._log(f"   • Убрано тишины: {mt_str}")
+            self._log(f"   • Заменено тишиной: {mt_str}")
             self._log(f"   • Время обработки: {st_str}")
             self._log(f"\n🎉 {message}")
             self.btn_export_srt.configure(state="normal" if pc > 0 else "disabled")
             messagebox.showinfo("Готово", message)
-        elif "прервана" in message.lower():
+        elif cancelled:
             self._log(f"\n⛔ {message}")
             self.btn_export_srt.configure(state="disabled")
         else:
@@ -456,13 +549,25 @@ class AudioCleanerApp(ctk.CTk):
             return
         path = filedialog.asksaveasfilename(
             title="Экспорт SRT", defaultextension=".srt", filetypes=[("SRT files", "*.srt")],
-            initialfile=f"markers_{os.path.basename(self.input_file)}.srt"
+            initialfile=f"markers_{os.path.basename(self.input_file or 'audio.wav')}.srt"
         )
         if path:
-            self.processor.export_srt(path, censor_mode=self.censor_mode_var.get(), log_cb=self._log)
+            self.processor.export_srt(path, censor_mode=self._get_effective_censor_mode(), log_cb=self._log)
             messagebox.showinfo("Экспорт SRT", f"Маркеры сохранены:\n{path}")
 
 
+def main() -> int:
+    try:
+        application = AudioCleanerApp()
+    except Exception as exc:  # модель/словарь не найдены и т.п.
+        root = ctk.CTk()
+        root.withdraw()
+        messagebox.showerror("Audio Cleaner Pro", f"Не удалось запустить приложение:\n{exc}")
+        root.destroy()
+        return 1
+    application.mainloop()
+    return 0
+
+
 if __name__ == "__main__":
-    app = AudioCleanerApp()
-    app.mainloop()
+    raise SystemExit(main())

@@ -1,13 +1,15 @@
 [Setup]
 AppName=AudioCleanerPro
-AppVersion=1.0
+AppVersion=3.8
 DefaultDirName={pf}\AudioCleanerPro
 DefaultGroupName=AudioCleanerPro
+ArchitecturesInstallIn64BitMode=x64
 OutputBaseFilename=AudioCleanerPro_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 DisableProgramGroupPage=yes
+UninstallDisplayIcon={app}\AudioCleanerPro.exe
 
 [Languages]
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"

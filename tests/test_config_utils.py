@@ -14,31 +14,16 @@ class ConfigUtilsTests(unittest.TestCase):
 
         self.assertEqual(settings["processing_preset"], "quality")
 
-    def test_censor_profanity_accepts_empty_transcript_context(self):
+    def test_apply_censorship_accepts_empty_words(self):
         processor = AudioProcessor.__new__(AudioProcessor)
         processor._log = lambda *args, **kwargs: None
-        processor._check_cancel = lambda *args, **kwargs: None
-        processor._is_profanity = lambda word: word in {"бля", "сука"}
-        processor._check_context_for_false_positive = lambda *args, **kwargs: (False, "")
-        processor._has_l_resonance = lambda *args, **kwargs: False
         processor.last_entries = []
-        processor.last_sr = 0
         processor.profanity_set = {"бля", "сука"}
-        processor.vosk_model = None
 
-        data = [0.0, 0.0, 0.0]
-        result, entries = processor._censor_profanity(
-            data,
-            16000,
-            "meow",
-            None,
-            8000,
-            100,
-            None,
-            None,
-        )
+        data = np.zeros(3, dtype=np.float32)
+        result, entries = processor._apply_censorship(data, 16000, [], "meow", None, 100, None)
 
-        self.assertEqual(result, data)
+        np.testing.assert_array_equal(result, data)
         self.assertEqual(entries, [])
 
     def test_estimate_denoise_strength_is_tighter_for_speechy_chunks(self):

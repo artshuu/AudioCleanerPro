@@ -1,11 +1,36 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from pathlib import Path
+
+from PyInstaller.utils.hooks import collect_data_files
+
+project_dir = Path(SPECPATH)
+datas = []
+
+words_file = project_dir / "words.txt"
+if not words_file.exists():
+    raise SystemExit("words.txt не найден в корне проекта — без словаря цензура не работает.")
+datas.append((str(words_file), "."))
+
+model_dir = None
+for model_name in ("vosk-model-ru-0.42", "vosk-model-ru-0.22", "vosk-model-small-ru-0.22"):
+    candidate = project_dir / model_name
+    if (candidate / "am").exists():
+        model_dir = candidate
+        break
+if model_dir is not None:
+    datas.append((str(model_dir), model_dir.name))
+else:
+    print("WARNING: Vosk model not found; censoring will be disabled in the build.")
+
+# customtkinter грузит темы/шрифты как файлы данных.
+datas += collect_data_files("customtkinter")
 
 a = Analysis(
-    ['app.py'],
-    pathex=[],
+    [str(project_dir / "app.py")],
+    pathex=[str(project_dir)],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

@@ -1,53 +1,75 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 cd /d "%~dp0"
 
-echo === AudioCleanerPro Release Build ===
+set "PYTHON=python"
+if exist "venv\Scripts\python.exe" set "PYTHON=venv\Scripts\python.exe"
 
-echo Installing PyInstaller if needed...
-python -m pip install --upgrade pip
-python -m pip install pyinstaller
+echo === AudioCleanerPro Release Build ===
+echo Using: %PYTHON%
+
+%PYTHON% -c "import PyInstaller" >nul 2>&1
+if errorlevel 1 (
+    echo PyInstaller not found, installing...
+    %PYTHON% -m pip install --upgrade pip
+    %PYTHON% -m pip install pyinstaller
+)
 
 if exist build rd /s /q build
 if exist dist rd /s /q dist
 
-python -m PyInstaller --noconsole --clean --name AudioCleanerPro app.py
+%PYTHON% -m PyInstaller --clean --noconfirm AudioCleanerPro.spec
 if errorlevel 1 (
-  echo.
-  echo [ERROR] PyInstaller build failed.
-  pause
-  exit /b 1
+    echo.
+    echo [ERROR] PyInstaller build failed.
+    pause
+    exit /b 1
 )
 
-echo Copying runtime resources into dist\AudioCleanerPro...
-if not exist dist\AudioCleanerPro (
-  echo [ERROR] Expected dist\AudioCleanerPro not found.
-  pause
-  exit /b 1
-)
-
-copy /y "words.txt" "dist\AudioCleanerPro\" >nul
-if exist "vosk-model-small-ru-0.22" (
-    if exist dist\AudioCleanerPro\vosk-model-small-ru-0.22 rd /s /q dist\AudioCleanerPro\vosk-model-small-ru-0.22
-    xcopy "vosk-model-small-ru-0.22" "dist\AudioCleanerPro\vosk-model-small-ru-0.22" /e /i /y >nul
+set "APP_DIR=dist\AudioCleanerPro"
+if exist "%APP_DIR%\_internal" (
+    set "RES_DIR=%APP_DIR%\_internal"
 ) else (
-    echo [WARNING] Model folder "vosk-model-small-ru-0.22" не найдена в корне проекта.
-    echo Поместите папку модели рядом с EXE после сборки, чтобы приложение работало.
+    set "RES_DIR=%APP_DIR%"
+)
+
+echo Checking bundled resources in %RES_DIR% ...
+if not exist "%RES_DIR%\words.txt" copy /y "words.txt" "%RES_DIR%\" >nul
+
+set "MODEL_NAME="
+if exist "vosk-model-ru-0.42\am" set "MODEL_NAME=vosk-model-ru-0.42"
+if not defined MODEL_NAME if exist "vosk-model-ru-0.22\am" set "MODEL_NAME=vosk-model-ru-0.22"
+if not defined MODEL_NAME if exist "vosk-model-small-ru-0.22\am" set "MODEL_NAME=vosk-model-small-ru-0.22"
+if defined MODEL_NAME if not exist "%RES_DIR%\%MODEL_NAME%\am" (
+    xcopy "%MODEL_NAME%" "%RES_DIR%\%MODEL_NAME%" /e /i /y >nul
+)
+
+if not exist "%APP_DIR%\AudioCleanerPro.exe" (
+    echo [ERROR] AudioCleanerPro.exe not found in %APP_DIR%.
+    pause
+    exit /b 1
+)
+
+if not exist "%RES_DIR%\words.txt" (
+    echo [ERROR] words.txt missing in %RES_DIR%.
+    pause
+    exit /b 1
 )
 
 echo.
 echo Build complete.
-echo - EXE: dist\AudioCleanerPro\AudioCleanerPro.exe
-if exist dist\AudioCleanerPro\vosk-model-small-ru-0.22 (
-  echo - Vosk model copied to dist\AudioCleanerPro\vosk-model-small-ru-0.22
+echo - EXE: %APP_DIR%\AudioCleanerPro.exe
+echo - Resources: %RES_DIR%
+dir /b /ad "%RES_DIR%\vosk-model*" >nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] Vosk model not bundled. Place a vosk-model* folder into %RES_DIR%
 ) else (
-  echo [WARNING] Vosk model directory was not copied.
+    echo - Vosk model: bundled
 )
 
 echo.
 echo To create an installer, open AudioCleanerProInstaller.iss in Inno Setup or run:
- echo     iscc AudioCleanerProInstaller.iss
-
+echo     iscc AudioCleanerProInstaller.iss
 echo.
 pause
 endlocal
