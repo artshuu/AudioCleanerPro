@@ -5,6 +5,9 @@ vosk>=0.3.45; sys_platform != "darwin"
 vosk==0.3.44; sys_platform == "darwin"
 silero-vad>=5.1
 scipy>=1.11.0
-numpy>=1.24.0
-torch>=2.1.0
-torchaudio>=2.1.0
+numpy>=1.24.0; sys_platform != "darwin" or platform_machine != "x86_64"
+numpy>=1.24,<2; sys_platform == "darwin" and platform_machine == "x86_64"
+torch>=2.1.0; sys_platform != "darwin" or platform_machine != "x86_64"
+torch==2.2.2; sys_platform == "darwin" and platform_machine == "x86_64"
+torchaudio>=2.1.0; sys_platform != "darwin" or platform_machine != "x86_64"
+torchaudio==2.2.2; sys_platform == "darwin" and platform_machine == "x86_64"
