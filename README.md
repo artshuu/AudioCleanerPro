@@ -63,6 +63,26 @@ pip install -r requirements-dev.txt
 python app.py
 ```
 
+## 🍎 macOS
+
+Готовые сборки публикуются в GitHub Releases:
+
+-   `AudioCleanerPro-3.8-macos-arm64.zip` — Apple Silicon (M1/M2/M3/M4);
+-   `AudioCleanerPro-3.8-macos-x86_64.zip` — Intel Mac.
+
+Требования: macOS 11+, Python не нужен. Распакуйте архив, перетащите `AudioCleanerPro.app` в `Applications` и запустите. При первом запуске неподписанного приложения macOS может показать предупреждение Gatekeeper: нажмите правой кнопкой по `AudioCleanerPro.app` → «Открыть» → «Открыть».
+
+Настройки и журнал на macOS: `~/Library/Application Support/AudioCleanerPro`.
+
+Сборка выполняется в GitHub Actions на реальных macOS-раннерах (`.github/workflows/build-macos.yml`), потому что собрать macOS-приложение на Windows нельзя. Запуск workflow: вкладка **Actions** → **Build macOS** → **Run workflow**. Локальная сборка на Mac:
+
+```bash
+python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt pyinstaller
+python -m PyInstaller --clean --noconfirm AudioCleanerPro-macos.spec
+```
+
 ## 🗂 Где хранятся настройки и лог
 
 -   Настройки: `%LOCALAPPDATA%\AudioCleanerPro\audio_cleaner_settings.json`

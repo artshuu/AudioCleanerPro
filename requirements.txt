@@ -1,7 +1,8 @@
 customtkinter>=5.2.0
 soundfile>=0.12.1
 noisereduce>=3.0.0
-vosk>=0.3.45
+vosk>=0.3.45; sys_platform != "darwin"
+vosk==0.3.44; sys_platform == "darwin"
 silero-vad>=5.1
 scipy>=1.11.0
 numpy>=1.24.0

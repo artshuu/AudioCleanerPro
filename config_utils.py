@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -27,9 +28,15 @@ VALID_PRESETS = {"fast", "balanced", "quality"}
 def get_app_data_dir() -> Path:
     """Каталог для настроек и логов.
 
-    В установленной версии это %LOCALAPPDATA%\\AudioCleanerPro, где у обычного
-    пользователя есть права на запись (в отличие от Program Files).
+    Windows: %LOCALAPPDATA%\\AudioCleanerPro
+    macOS:   ~/Library/Application Support/AudioCleanerPro
+    Linux:   $XDG_DATA_HOME/AudioCleanerPro
     """
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / APP_DIR_NAME
+    if sys.platform.startswith("linux"):
+        base = os.getenv("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+        return Path(base) / APP_DIR_NAME
     base = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA")
     if base:
         return Path(base) / APP_DIR_NAME

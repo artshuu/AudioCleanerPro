@@ -1,0 +1,72 @@
+name: Build macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            arch: arm64
+          - os: macos-13
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Ensure Tkinter
+        shell: bash
+        run: |
+          if python -c "import tkinter" 2>/dev/null; then
+            echo "PYTHON=python" >> "$GITHUB_ENV"
+          else
+            brew install python@3.12 python-tk@3.12
+            echo "PYTHON=$(brew --prefix python@3.12)/bin/python3.12" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          "$PYTHON" -m pip install --upgrade pip
+          "$PYTHON" -m pip install -r requirements.txt pyinstaller
+          "$PYTHON" -c "import tkinter, vosk, silero_vad, torch, torchaudio; print('deps ok')"
+
+      - name: Build application
+        shell: bash
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          "$PYTHON" -m PyInstaller --clean --noconfirm AudioCleanerPro-macos.spec
+          test -d dist/AudioCleanerPro.app
+          test -n "$(find dist/AudioCleanerPro.app -name 'silero_vad.jit' -print -quit)"
+          test -n "$(find dist/AudioCleanerPro.app -name 'words.txt' -print -quit)"
+          test -n "$(find dist/AudioCleanerPro.app -type d -name 'vosk-model-small-ru-0.22' -print -quit)"
+          ditto -c -k --sequesterRsrc --keepParent dist/AudioCleanerPro.app "AudioCleanerPro-3.8-macos-${ARCH}.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioCleanerPro-3.8-macos-${{ matrix.arch }}
+          path: AudioCleanerPro-3.8-macos-${{ matrix.arch }}.zip
+          if-no-files-found: error
+
+      - name: Attach to GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          gh release upload v3.8 "AudioCleanerPro-3.8-macos-${ARCH}.zip" --clobber

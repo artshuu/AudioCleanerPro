@@ -26,6 +26,9 @@ else:
 # customtkinter грузит темы/шрифты как файлы данных.
 datas += collect_data_files("customtkinter")
 
+# Silero VAD загружает .jit через importlib.resources — данные обязательны.
+datas += collect_data_files("silero_vad")
+
 a = Analysis(
     [str(project_dir / "app.py")],
     pathex=[str(project_dir)],
