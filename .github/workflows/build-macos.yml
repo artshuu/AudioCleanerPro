@@ -22,6 +22,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download Vosk model
+        shell: bash
+        run: |
+          if [ ! -d vosk-model-small-ru-0.22 ]; then
+            curl -L --fail -o "$RUNNER_TEMP/vosk-model.zip" \
+              https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip
+            unzip -q "$RUNNER_TEMP/vosk-model.zip"
+          fi
+          test -d vosk-model-small-ru-0.22/am
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
