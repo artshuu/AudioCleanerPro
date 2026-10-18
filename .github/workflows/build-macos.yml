@@ -66,6 +66,11 @@ jobs:
           test -n "$(find dist/AudioCleanerPro.app -type d -name 'vosk-model-small-ru-0.22' -print -quit)"
           ditto -c -k --sequesterRsrc --keepParent dist/AudioCleanerPro.app "AudioCleanerPro-3.8-macos-${ARCH}.zip"
 
+      - name: Self-test packaged app
+        shell: bash
+        run: |
+          dist/AudioCleanerPro.app/Contents/MacOS/AudioCleanerPro --self-test
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

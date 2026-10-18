@@ -1,0 +1,210 @@
+180 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.8
+181 INFO: Python: 3.12.10
+202 INFO: Platform: Windows-11-10.0.26300-SP0
+203 INFO: Python environment: C:\Projects\AudioCleanerPro\venv
+206 INFO: Removing temporary files and cleaning cache in C:\Users\noise\AppData\Local\Temp\acp_gui_smoke\pyinstaller
+856 INFO: Module search paths (PYTHONPATH):
+['C:\\Projects\\AudioCleanerPro',
+ 'c:\\Projects\\AudioCleanerPro',
+ 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip',
+ 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs',
+ 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\Lib',
+ 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312',
+ 'C:\\Projects\\AudioCleanerPro\\venv',
+ 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages',
+ 'C:\\Projects\\AudioCleanerPro']
+1225 INFO: Appending 'binaries' from .spec
+1225 INFO: Appending 'datas' from .spec
+1227 INFO: checking Analysis
+1227 INFO: Building Analysis because Analysis-00.toc is non existent
+1227 INFO: Looking for Python shared library...
+1227 INFO: Using Python shared library: C:\Users\noise\AppData\Local\Programs\Python\Python312\python312.dll
+1227 INFO: Running Analysis Analysis-00.toc
+1227 INFO: Target bytecode optimization level: 0
+1228 INFO: Initializing module dependency graph...
+1229 INFO: Initializing module graph hook caches...
+1304 INFO: Analyzing modules for base_library.zip ...
+2085 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+2924 INFO: Processing standard module hook 'hook-math.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+4006 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5135 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5509 INFO: Caching module dependency graph...
+5533 INFO: Analyzing C:\Projects\AudioCleanerPro\app.py
+5564 INFO: Processing standard module hook 'hook-customtkinter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+5595 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+5598 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+5805 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5864 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5886 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5896 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+5898 INFO: SetuptoolsInfo: initializing cached setuptools info...
+6442 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+6674 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6838 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7689 INFO: Processing standard module hook 'hook-PIL.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7764 INFO: Processing standard module hook 'hook-PIL.Image.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8058 INFO: Processing standard module hook 'hook-numpy.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8654 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+9065 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+9411 INFO: Processing standard module hook 'hook-webbrowser.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+10483 INFO: Processing standard module hook 'hook-charset_normalizer.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+10844 INFO: Processing standard module hook 'hook-xml.etree.cElementTree.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+11002 INFO: Processing standard module hook 'hook-PIL.ImageFilter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+11428 INFO: Processing standard module hook 'hook-soundfile.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+11468 INFO: Processing standard module hook 'hook-torch.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+1401 WARNING: Failed to collect submodules for 'torch.utils.tensorboard' because importing 'torch.utils.tensorboard' raised: ModuleNotFoundError: No module named 'tensorboard'
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\utils\hooks\__init__.py:665: DeprecationWarning: `torch.distributed._sharding_spec` will be deprecated, use `torch.distributed._shard.sharding_spec` instead
+  __import__(name)
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\utils\hooks\__init__.py:665: DeprecationWarning: `torch.distributed._sharded_tensor` will be deprecated, use `torch.distributed._shard.sharded_tensor` instead
+  __import__(name)
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\utils\hooks\__init__.py:665: DeprecationWarning: `torch.distributed._shard.checkpoint` will be deprecated, use `torch.distributed.checkpoint` instead
+  __import__(name)
+21454 INFO: hook-torch: this torch build does not depend on MKL...
+22797 INFO: Processing standard module hook 'hook-matplotlib.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23295 INFO: Processing pre-safe-import-module hook 'hook-gi.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+23436 INFO: Processing standard module hook 'hook-matplotlib.backend_bases.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23944 INFO: Processing standard module hook 'hook-jinja2.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+24313 INFO: Processing standard module hook 'hook-matplotlib.backends.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24375 INFO: Processing standard module hook 'hook-matplotlib.pyplot.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24569 INFO: Processing standard module hook 'hook-matplotlib.figure.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25013 INFO: Processing standard module hook 'hook-dateutil.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+25072 INFO: Processing pre-safe-import-module hook 'hook-six.moves.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+26074 INFO: Processing standard module hook 'hook-certifi.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+26259 INFO: Processing standard module hook 'hook-py.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+26585 INFO: Processing standard module hook 'hook-pygments.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+27989 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+27990 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+28009 INFO: Processing standard module hook 'hook-setuptools.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+28048 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28094 INFO: Processing pre-safe-import-module hook 'hook-jaraco.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28095 INFO: Setuptools: 'jaraco' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco'!
+28113 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28114 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+28603 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+28604 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28621 INFO: Processing pre-safe-import-module hook 'hook-backports.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28621 INFO: Setuptools: 'backports' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.backports'!
+28783 INFO: Processing pre-safe-import-module hook 'hook-importlib_metadata.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28784 INFO: Setuptools: 'importlib_metadata' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.importlib_metadata'!
+28857 INFO: Processing standard module hook 'hook-setuptools._vendor.importlib_metadata.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+28874 INFO: Processing pre-safe-import-module hook 'hook-zipp.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+28876 INFO: Setuptools: 'zipp' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.zipp'!
+29401 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+29403 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+29886 INFO: Processing standard module hook 'hook-pytest.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+30187 INFO: Processing standard module hook 'hook-pkg_resources.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+30428 INFO: Processing pre-safe-import-module hook 'hook-platformdirs.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30429 INFO: Setuptools: 'platformdirs' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.platformdirs'!
+38284 INFO: Processing standard module hook 'hook-scipy.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+38932 INFO: Processing standard module hook 'hook-pycparser.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+39300 INFO: Processing standard module hook 'hook-scipy.linalg.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+43084 INFO: Processing pre-safe-import-module hook 'hook-win32com.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\pre_safe_import_module'
+43404 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+50345 INFO: Processing standard module hook 'hook-torchaudio.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+54176 INFO: Processing standard module hook 'hook-scipy.io.matlab.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+66802 INFO: Processing standard module hook 'hook-fsspec.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+67435 INFO: Processing standard module hook 'hook-urllib3.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+68935 INFO: Processing standard module hook 'hook-scipy.special._ufuncs.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+69051 INFO: Processing standard module hook 'hook-scipy.special._ellip_harm_2.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+74000 INFO: Processing standard module hook 'hook-scipy.spatial._ckdtree.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+74629 INFO: Processing standard module hook 'hook-scipy.spatial.transform.rotation.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+75261 INFO: Processing standard module hook 'hook-scipy.stats._stats.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+75592 INFO: Processing standard module hook 'hook-scipy.sparse.csgraph.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+77665 INFO: Processing standard module hook 'hook-xml.dom.domreg.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+81074 INFO: Analyzing hidden import 'vosk.transcriber'
+81074 INFO: Analyzing hidden import 'vosk.transcriber.cli'
+81105 INFO: Processing standard module hook 'hook-websockets.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+81726 INFO: Processing module hooks (post-graph stage)...
+81945 WARNING: Hidden import "pycparser.lextab" not found!
+81945 WARNING: Hidden import "pycparser.yacctab" not found!
+83126 INFO: Processing pre-safe-import-module hook 'hook-tensorflow.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\pre_safe_import_module'
+87696 INFO: Processing standard module hook 'hook-matplotlib.backends.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+87696 INFO: Matplotlib backend selection method: automatic discovery of used backends
+87721 INFO: Discovered Matplotlib backend(s) via `matplotlib.use()` call in module 'sympy.testing.runtests': ['Agg', 'Agg']
+87722 INFO: The following Matplotlib backends were discovered by scanning for `matplotlib.use()` calls: ['Agg']. If your backend of choice is not in this list, either add a `matplotlib.use()` call to your code, or configure the backend collection via hook options (see: https://pyinstaller.org/en/stable/hooks-config.html#matplotlib-hooks).
+88054 INFO: Selected matplotlib backends: ['Agg']
+88055 INFO: Extra dists for selected matplotlib backends: []
+88237 INFO: Processing standard module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+89781 WARNING: Hidden import "scipy.special._cdflib" not found!
+89807 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+89849 INFO: Performing binary vs. data reclassification (1225 entries)
+90262 INFO: Looking for ctypes DLLs
+90269 WARNING: Ignoring AppKit.framework/AppKit imported from C:\Projects\AudioCleanerPro\venv\Lib\site-packages\darkdetect\_mac_detect.py - only basenames are supported with ctypes imports!
+90290 WARNING: Library msvcp140.dll required via ctypes not found
+90303 WARNING: Library user32 required via ctypes not found
+90326 WARNING: Ignoring /usr/lib64/libgomp.so.1 imported from C:\Projects\AudioCleanerPro\venv\Lib\site-packages\torch\_inductor\codecache.py - only basenames are supported with ctypes imports!
+90331 WARNING: Library nvcuda.dll required via ctypes not found
+90378 WARNING: Library version.dll required via ctypes not found
+90569 INFO: Analyzing run-time hooks ...
+90587 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90589 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90590 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90593 INFO: Including run-time hook 'pyi_rth_setuptools.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90594 INFO: Including run-time hook 'pyi_rth_mplconfig.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90595 INFO: Processing pre-find-module-path hook 'hook-_pyi_rth_utils.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+90598 INFO: Processing standard module hook 'hook-_pyi_rth_utils.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks'
+90604 INFO: Including run-time hook 'pyi_rth_pkgres.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90608 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+90691 INFO: Creating base_library.zip...
+90709 INFO: Looking for dynamic libraries
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\building\build_main.py:227: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  __import__(package)
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\building\build_main.py:227: DeprecationWarning: `torch.distributed._sharding_spec` will be deprecated, use `torch.distributed._shard.sharding_spec` instead
+  __import__(package)
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\building\build_main.py:227: DeprecationWarning: `torch.distributed._sharded_tensor` will be deprecated, use `torch.distributed._shard.sharded_tensor` instead
+  __import__(package)
+C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\building\build_main.py:227: DeprecationWarning: `torch.distributed._shard.checkpoint` will be deprecated, use `torch.distributed.checkpoint` instead
+  __import__(package)
+97469 INFO: Extra DLL search directories (AddDllDirectory): ['C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\vosk', 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\numpy.libs', 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\scipy.libs', 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib']
+97470 INFO: Extra DLL search directories (PATH): ['C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\vosk']
+98800 WARNING: Library not found: could not resolve 'MSVCP140_ATOMIC_WAIT.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\torch_python.dll'.
+98801 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\torch_python.dll'.
+98803 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\torch_cpu.dll'.
+98806 WARNING: Library not found: could not resolve 'WINTRUST.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\libiomp5md.dll'.
+98807 WARNING: Library not found: could not resolve 'imagehlp.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\libiomp5md.dll'.
+98809 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\bin\\protoc.exe'.
+98810 WARNING: Library not found: could not resolve 'dbghelp.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\c10.dll'.
+98810 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\c10.dll'.
+98811 WARNING: Library not found: could not resolve 'IPHLPAPI.DLL', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\uv.dll'.
+98812 WARNING: Library not found: could not resolve 'PSAPI.DLL', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\uv.dll'.
+98813 WARNING: Library not found: could not resolve 'USERENV.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torch\\lib\\uv.dll'.
+98814 WARNING: Library not found: could not resolve 'VERSION.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\python312.dll'.
+98815 WARNING: Library not found: could not resolve 'bcrypt.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\python312.dll'.
+98816 WARNING: Library not found: could not resolve 'SHLWAPI.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\_soundfile_data\\libsndfile_x64.dll'.
+98823 WARNING: Library not found: could not resolve 'IPHLPAPI.DLL', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\_socket.pyd'.
+98828 WARNING: Library not found: could not resolve 'PROPSYS.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\_wmi.pyd'.
+98833 WARNING: Library not found: could not resolve 'PSAPI.DLL', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\PIL\\_imagingtk.cp312-win_amd64.pyd'.
+98940 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torchaudio\\lib\\libtorchaudio.pyd'.
+98940 WARNING: Library not found: could not resolve 'MSVCP140.dll', dependency of 'C:\\Projects\\AudioCleanerPro\\venv\\Lib\\site-packages\\torchaudio\\lib\\_torchaudio.pyd'.
+98948 WARNING: Library not found: could not resolve 'bcrypt.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\libcrypto-3.dll'.
+98950 WARNING: Library not found: could not resolve 'COMCTL32.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\tk86t.dll'.
+98951 WARNING: Library not found: could not resolve 'COMDLG32.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\tk86t.dll'.
+98951 WARNING: Library not found: could not resolve 'IMM32.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\tk86t.dll'.
+98952 WARNING: Library not found: could not resolve 'NETAPI32.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\tcl86t.dll'.
+98953 WARNING: Library not found: could not resolve 'USERENV.dll', dependency of 'C:\\Users\\noise\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\tcl86t.dll'.
+99026 INFO: Warnings written to C:\Projects\AudioCleanerPro\build\AudioCleanerPro\warn-AudioCleanerPro.txt
+99378 INFO: Graph cross-reference written to C:\Projects\AudioCleanerPro\build\AudioCleanerPro\xref-AudioCleanerPro.html
+99509 INFO: checking PYZ
+99510 INFO: Building PYZ because PYZ-00.toc is non existent
+99510 INFO: Building PYZ (ZlibArchive) C:\Projects\AudioCleanerPro\build\AudioCleanerPro\PYZ-00.pyz
+103181 INFO: Building PYZ (ZlibArchive) C:\Projects\AudioCleanerPro\build\AudioCleanerPro\PYZ-00.pyz completed successfully.
+103248 INFO: checking PKG
+103248 INFO: Building PKG because PKG-00.toc is non existent
+103248 INFO: Building PKG (CArchive) AudioCleanerPro.pkg
+103307 INFO: Building PKG (CArchive) AudioCleanerPro.pkg completed successfully.
+103308 INFO: Bootloader C:\Projects\AudioCleanerPro\venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+103308 INFO: checking EXE
+103309 INFO: Building EXE because EXE-00.toc is non existent
+103309 INFO: Building EXE from EXE-00.toc
+103310 INFO: Copying bootloader EXE to C:\Projects\AudioCleanerPro\build\AudioCleanerPro\AudioCleanerPro.exe
+103378 INFO: Copying icon to EXE
+103415 INFO: Copying 0 resources to EXE
+103416 INFO: Embedding manifest in EXE
+103447 INFO: Appending PKG archive to EXE
+103528 INFO: Fixing EXE headers
+103947 INFO: Building EXE from EXE-00.toc completed successfully.
+103971 INFO: checking COLLECT
+103972 INFO: Building COLLECT because COLLECT-00.toc is non existent
+103972 INFO: Building COLLECT COLLECT-00.toc
+108939 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+109031 INFO: Build complete! The results are available in: C:\Projects\AudioCleanerPro\dist

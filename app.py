@@ -1,5 +1,6 @@
 import os
 import queue
+import sys
 import threading
 import time
 
@@ -9,6 +10,11 @@ try:
     from processor import AudioProcessor, resolve_processing_config
     from config_utils import APP_VERSION, load_settings, save_settings
 except Exception as exc:
+    if "--self-test" in sys.argv:
+        import traceback
+
+        traceback.print_exc()
+        raise SystemExit(1)
     try:
         import tkinter as _tk
         from tkinter import messagebox as _messagebox
@@ -556,6 +562,52 @@ class AudioCleanerApp(ctk.CTk):
             messagebox.showinfo("Экспорт SRT", f"Маркеры сохранены:\n{path}")
 
 
+def self_test() -> int:
+    """Проверка упакованной сборки без GUI: Vosk, Silero, полный process()."""
+    import tempfile
+
+    import numpy as np
+    import soundfile as sf
+
+    from config_utils import APP_VERSION
+    from processor import AudioProcessor
+
+    print(f"AudioCleanerPro {APP_VERSION} self-test")
+    processor = AudioProcessor()
+    if processor.vosk_model is None:
+        print(f"vosk: FAIL ({processor.vosk_warning})")
+        return 1
+    if processor.vad_model is None:
+        print(f"silero: FAIL ({processor.vad_warning})")
+        return 1
+    print(f"vosk: {processor.vosk_model_name}; words: {len(processor.profanity_set)}")
+
+    sample_rate = 16000
+    seconds = 3
+    t = np.arange(sample_rate * seconds) / sample_rate
+    signal = (0.05 * np.sin(2 * np.pi * 180 * t) * (0.4 + 0.6 * np.abs(np.sin(2 * np.pi * 1.5 * t)))).astype(np.float32)
+
+    with tempfile.TemporaryDirectory() as work_dir:
+        input_path = os.path.join(work_dir, "self_test_in.wav")
+        output_path = os.path.join(work_dir, "self_test_out.wav")
+        sf.write(input_path, signal, sample_rate)
+        ok, message, stats = processor.process(
+            input_path, output_path, censor_mode="beep", noise_reduction=0.5,
+            padding_ms=100, processing_preset="fast", log_cb=lambda _message: None,
+        )
+        if not ok or not os.path.exists(output_path):
+            print(f"process: FAIL ({message})")
+            return 1
+        result, result_sr = sf.read(output_path, dtype="float32")
+        if result_sr != sample_rate or len(result) != len(signal):
+            print("output: FAIL (sample rate or length mismatch)")
+            return 1
+        print(f"process: OK ({len(result)} samples, {stats.get('elapsed', 0):.2f}s)")
+
+    print("self-test OK")
+    return 0
+
+
 def main() -> int:
     try:
         application = AudioCleanerApp()
@@ -570,4 +622,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--self-test" in sys.argv:
+        raise SystemExit(self_test())
     raise SystemExit(main())

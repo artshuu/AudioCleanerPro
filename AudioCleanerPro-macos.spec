@@ -2,10 +2,17 @@
 
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_all, collect_data_files
 
 project_dir = Path(SPECPATH)
 datas = []
+binaries = []
+hiddenimports = []
+
+vosk_datas, vosk_binaries, vosk_hidden = collect_all("vosk")
+datas += vosk_datas
+binaries += vosk_binaries
+hiddenimports += vosk_hidden
 
 words_file = project_dir / "words.txt"
 if not words_file.exists():
@@ -29,9 +36,9 @@ datas += collect_data_files("silero_vad")
 a = Analysis(
     [str(project_dir / "app.py")],
     pathex=[str(project_dir)],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
-    hiddenimports=[],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
