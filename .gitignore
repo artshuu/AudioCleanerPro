@@ -18,3 +18,5 @@ audio_cleaner_settings.json
 .vscode/
 .idea/
 Thumbs.db
+build_*.log
+iscc_*.log
